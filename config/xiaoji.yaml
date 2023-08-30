@@ -1,0 +1,32 @@
+# Ultralytics YOLO 🚀, GPL-3.0 license
+# PASCAL VOC dataset http://host.robots.ox.ac.uk/pascal/VOC by University of Oxford
+# Example usage: yolo train data=VOC.yaml
+# parent
+# ├── yolov5
+# └── datasets
+#     └── VOC  ← downloads here (2.8 GB)
+
+
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: ./xiaoji
+train: # train images (relative to 'path')  16551 images
+  - ./train
+val: # val images (relative to 'path')  4952 images
+    ./val
+test: # test images (optional)
+    ./test
+# Classes
+names:
+  0 : '偷吃的小鸡'
+  1 : '喂食按钮'
+  2 : '在吃饭的小鸡'
+  3 : '好友头像'
+  4 : '有食物的食盆'
+  5 : '没饭吃的鸡'
+  6 : '留言板'
+  7 : '种麦子'
+  8 : '空食盆'
+  9 : '蹭吃'
+  10 : '运动会'
+  11 : '道具'
+  12 : '雇佣'
