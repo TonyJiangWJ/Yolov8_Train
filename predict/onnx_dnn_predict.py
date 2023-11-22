@@ -114,9 +114,9 @@ class YOLOv8:
         # model_inputs = self.session.get_inputs()
         # self.input_names = [model_inputs[i].name for i in range(len(model_inputs))]
 
-        self.input_shape = [640,640]
-        self.input_height = 640
-        self.input_width = 640
+        self.input_shape = [480,480]
+        self.input_height = 480
+        self.input_width = 480
 
     def get_output_details(self):
         # model_outputs = self.session.get_outputs()
@@ -127,12 +127,12 @@ class YOLOv8:
 if __name__ == '__main__':
     # from imread_from_url import imread_from_url
 
-    model_path = 'runs/detect/train2/weights/best.onnx'
+    model_path = '../runs/detect/manor_v4/weights/best.onnx'
 
     # Initialize YOLOv8 object detector
     yolov8_detector = YOLOv8(model_path, conf_thres=0.3, iou_thres=0.3)
 
-    image_path = 'datasets/xiaoji/images/1692428022893_1.jpg'
+    image_path = '../datasets/manor/images/1692959999516875.jpg'
     img = cv2.imread(image_path)
 
     # Detect Objects

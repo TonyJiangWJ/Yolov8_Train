@@ -10,19 +10,8 @@ import cv2
 #                'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard',
 #                'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase',
 #                'scissors', 'teddy bear', 'hair drier', 'toothbrush']
-class_names = ['偷吃的小鸡',
-               '喂食按钮',
-               '在吃饭的小鸡',
-               '好友头像',
-               '有食物的食盆',
-               '没饭吃的鸡',
-               '留言板',
-               '种麦子',
-               '空食盆',
-               '蹭吃',
-               '运动会',
-               '道具',
-               '雇佣', ]
+import label_config
+class_names = label_config.to_list(label_config.manor)
 
 # Create a list of colors for each class where each color is a tuple of 3 integer values
 rng = np.random.default_rng(3)

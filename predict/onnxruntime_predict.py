@@ -26,7 +26,6 @@ class YOLOv8:
         self.get_input_details()
         self.get_output_details()
 
-
     def detect_objects(self, image):
         input_tensor = self.prepare_input(image)
 
@@ -51,15 +50,15 @@ class YOLOv8:
         input_img = input_img / 255.0
         input_img = input_img.transpose(2, 0, 1)
         input_tensor = input_img[np.newaxis, :, :, :].astype(np.float32)
+        # input_tensor = input_img[np.newaxis, :, :, :].astype(np.ubyte)
 
         return input_tensor
-
 
     def inference(self, input_tensor):
         start = time.perf_counter()
         outputs = self.session.run(self.output_names, {self.input_names[0]: input_tensor})
 
-        # print(f"Inference time: {(time.perf_counter() - start)*1000:.2f} ms")
+        print(f"Inference time: {(time.perf_counter() - start)*1000:.2f} ms")
         return outputs
 
     def process_output(self, output):
@@ -106,7 +105,10 @@ class YOLOv8:
         return boxes
 
     def draw_detections(self, image, draw_scores=True, mask_alpha=0.4):
-
+        for idx in range(len(self.class_ids)):
+            cls = self.class_ids[idx]
+            score = self.scores[idx]
+            print(f"classId: {cls} score: {score}")
         return draw_detections(image, self.boxes, self.scores,
                                self.class_ids, mask_alpha)
 
@@ -126,12 +128,12 @@ class YOLOv8:
 if __name__ == '__main__':
     # from imread_from_url import imread_from_url
 
-    model_path = 'runs/detect/train2/weights/best.onnx'
+    model_path = '../runs/detect/forest_v4_320_try/weights/best-infer.onnx'
 
     # Initialize YOLOv8 object detector
     yolov8_detector = YOLOv8(model_path, conf_thres=0.3, iou_thres=0.3)
 
-    image_path = 'datasets/xiaoji/images/1692428022893_1.jpg'
+    image_path = '../datasets/forest2/images/16933095548319.jpg'
     img = cv2.imread(image_path)
 
     # Detect Objects

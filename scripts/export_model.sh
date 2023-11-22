@@ -18,5 +18,11 @@ yolo task=detect mode=export model=.\runs\detect\train7\weights\best.pt format=o
 yolo task=detect mode=export model=.\runs\detect\manor_v4\weights\best.pt format=onnx opset=12
 
 yolo task=detect mode=export model=.\runs\detect\feed_v3\weights\best.pt format=onnx opset=12
-
+# 训练时的使用大图，导出可以指定小图
 yolo task=detect mode=export model=.\runs\detect\feed_v3\weights\best.pt format=onnx opset=12 imgsz=320
+
+# 蚂蚁森林
+yolo task=detect mode=export model=.\runs\detect\forest_v3\weights\best.pt format=onnx opset=12 imgsz=320
+
+yolo task=detect mode=export model=.\runs\detect\forest_v3_320\weights\best.pt format=onnx opset=12
+yolo task=detect mode=export model=.\runs\detect\forest_v4_320\weights\best.pt format=onnx opset=12

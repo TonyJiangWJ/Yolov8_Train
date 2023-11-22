@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from ultralytics import YOLO
-from convert_xml2json import ShapeInfo
+from convert_to_yolo_txt import ShapeInfo
 
 best_model = YOLO(model='K:/YOLOV8_train_clean/runs/detect/manor_v1/weights/best.pt')
 # best_model = YOLO(model='config/best.pt')
@@ -13,6 +13,7 @@ img_path = 'K:/YOLOV8_train_clean/datasets/manor/images/169275806845675.jpg'
 import os
 import cv2
 from PIL import Image
+import label_config
 
 COLOR_RED = '\033[0;31m'
 COLOR_GREEN = '\033[0;32m'
@@ -33,37 +34,7 @@ thickness = 2
 color = (0, 255, 0)  # 绿色
 
 
-labels = {
-    0: "booth_btn",
-    1: "collect_coin",
-    2: "collect_egg",
-    3: "collect_food",
-    4: "cook",
-    5: "countdown",
-    6: "donate",
-    7: "eating_chicken",
-    8: "employ",
-    9: "empty_booth",
-    10: "feed_btn",
-    11: "friend_btn",
-    12: "has_food",
-    13: "has_shit",
-    14: "hungry_chicken",
-    15: "item",
-    16: "kick-out",
-    17: "no_food",
-    18: "not_ready",
-    19: "operation_booth",
-    20: "plz-go",
-    21: "punish_booth",
-    22: "punish_btn",
-    23: "signboard",
-    24: "sleep",
-    25: "speedup",
-    26: "sports",
-    27: "stopped_booth",
-    28: "thief_chicken",
-}
+labels = label_config.manor
 predict_info = {}
 for depth1 in result:
     predict_info['imagePath'] = os.path.basename(img_path)

@@ -8,7 +8,7 @@
 
 
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
-path: K:/YOLOV8_train_clean/datasets/forest3
+path: K:/YOLOV8_train_clean/datasets/tiktok
 train: # train images (relative to 'path')  16551 images
   - ./train
 val: # val images (relative to 'path')  4952 images
@@ -17,14 +17,22 @@ test: # test images (optional)
   ./test
 # Classes
 names:
-  0: cannot
-  1: collect
-  2: countdown
-  3: help_revive
-  4: item
-  5: tree
-  6: water
-  7: waterBall
-  8: stroll_btn
-  9: sea_ball
-  10: sea_garbage
+  0: "collect"
+  1: "comment"
+  2: "entry"
+  3: "follow"
+  4: "forward"
+  5: "process_bar"
+  6: "process_point"
+  7: "zan"
+  8: "ad_done"
+  9: "ad_mark"
+  10: "close_pop"
+  11: "countdown"
+  12: "finish_reward"
+  13: "reward"
+  14: "shop_countdown"
+  15: "sign_confirm"
+  16: "ad_loading"
+  17: "chest"
+  18: "loading_close"

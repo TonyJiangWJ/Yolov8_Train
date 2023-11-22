@@ -3,7 +3,7 @@ import numpy as np
 
 print("opencv version %s" % cv2.getVersionString())
 # 加载ONNX模型
-onnx_model_path = 'runs/detect/train2/weights/best.onnx'
+onnx_model_path = '../runs/detect/manor_v4/weights/best.onnx'
 net = cv2.dnn.readNetFromONNX(onnx_model_path)
 conf_threshold = 0.7
 iou_threshold = 0.5
@@ -11,7 +11,7 @@ iou_threshold = 0.5
 input_width = 640
 input_height = 640
 # 读取和预处理图片
-image_path = 'datasets/xiaoji/images/1692428022893_1.jpg'
+image_path = '../datasets/manor/images/169269584969722.jpg'
 image = cv2.imread(image_path)
 img_width = image.shape[1]
 img_height = image.shape[0]

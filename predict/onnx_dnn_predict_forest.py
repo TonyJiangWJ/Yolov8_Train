@@ -51,7 +51,6 @@ class YOLOv8:
 
         return input_tensor
 
-
     def inference(self, input_tensor):
         start = time.perf_counter()
         self.session.setInput(input_tensor)
@@ -97,7 +96,6 @@ class YOLOv8:
         return boxes
 
     def rescale_boxes(self, boxes):
-
         # Rescale boxes to original image dimensions
         input_shape = np.array([self.input_width, self.input_height, self.input_width, self.input_height])
         boxes = np.divide(boxes, input_shape, dtype=np.float32)
@@ -105,7 +103,6 @@ class YOLOv8:
         return boxes
 
     def draw_detections(self, image, draw_scores=True, mask_alpha=0.4):
-
         return draw_detections(image, self.boxes, self.scores,
                                self.class_ids, mask_alpha)
 
@@ -113,9 +110,9 @@ class YOLOv8:
         # model_inputs = self.session.get_inputs()
         # self.input_names = [model_inputs[i].name for i in range(len(model_inputs))]
 
-        self.input_shape = [640,640]
-        self.input_height = 640
-        self.input_width = 640
+        self.input_shape = [input_size, input_size]
+        self.input_height = input_size
+        self.input_width = input_size
 
     def get_output_details(self):
         # model_outputs = self.session.get_outputs()
@@ -125,13 +122,13 @@ class YOLOv8:
 
 if __name__ == '__main__':
     # from imread_from_url import imread_from_url
-
-    model_path = 'runs/detect/manor_v2/weights/best.onnx'
+    input_size = 320
+    model_path = '../runs/detect/forest_v4_320_try/weights/best_lite.onnx'
 
     # Initialize YOLOv8 object detector
     yolov8_detector = YOLOv8(model_path, conf_thres=0.3, iou_thres=0.3)
 
-    image_path = 'datasets/forest/images/1692494038.png'
+    image_path = '../datasets/forest2/images/16933095548319.jpg'
     img = cv2.imread(image_path)
 
     # Detect Objects
