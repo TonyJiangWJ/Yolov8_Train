@@ -157,7 +157,18 @@ tiktok = {
     17: "chest",
     18: "loading_close",
 }
+# 星星球
+manor_ball = {
+    0: "chick",
+    1: "ball",
+    2: "boom",
+}
 
+manor_ball_chz = {
+    0: "小鸡",
+    1: "球",
+    2: "炸弹",
+}
 
 # 遍历得到values，需要python3.8以上，否则顺序无法保证
 def to_list(label_obj: dict):

@@ -100,6 +100,7 @@ class DatasetImages:
 #     label_name  varchar(32) not null,
 #     class_id    integer,
 #     label_chz   varchar(128),
+#     total_count integer,
 #     create_time varchar(20) not null,
 #     modify_time varchar(20)
 # );
@@ -184,16 +185,11 @@ class ImageLabels:
         cursor.execute(insert_sql)
         cnx.commit()
 
-    def overwrite(self, cnx):
+    def delete_label_by_image_id(self, cnx):
         cursor = cnx.cursor()
         del_sql = f"delete from image_labels where dataset_id='{self.dataset_id}' and image_id='{self.image_id}'"
         LOGGER.verbose(f"delete sql:{del_sql}")
         cursor.execute(del_sql)
-        insert_sql = f"INSERT INTO image_labels (dataset_id, image_id, label_name, points, shape_type, create_time, modify_time)" \
-                     f" SELECT '{self.dataset_id}', '{self.image_id}', '{self.label_name}', '{self.points}', '{self.shape_type}', current_timestamp," \
-                     f" current_timestamp"
-        LOGGER.verbose(f"insert sql:{insert_sql}")
-        cursor.execute(insert_sql)
         cnx.commit()
 
 ###
@@ -255,12 +251,13 @@ def check_json_labels_and_save(_dataset, _conn, relative_path='', overwrite=Fals
             json_shapes, file_name = load_label_file(os.path.join(relative_path, _dataset.data_dir_path, json_file))
             dataset_image = DatasetImages(_dataset.id, image_id, file_name)
             dataset_image.save(_conn)
+            first = True
             for jsonShape in json_shapes:
                 image_label = ImageLabels(_dataset.id, image_id, jsonShape.label, jsonShape.points)
-                if overwrite:
-                    image_label.overwrite(_conn)
-                else:
-                    image_label.save(_conn)
+                if overwrite and first:
+                    first = False
+                    image_label.delete_label_by_image_id(_conn)
+                image_label.save(_conn)
 
 
 if __name__ == '__main__':

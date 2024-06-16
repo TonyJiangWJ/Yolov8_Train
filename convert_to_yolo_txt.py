@@ -6,6 +6,8 @@ import label_config
 import dataset_sql
 from lib.mylogger import LOGGER
 
+# 是否覆盖已存在的图片和标注数据
+overwrite_all = True
 
 def convertYolo(size, box):
     left, top, right, bottom = box
@@ -75,10 +77,16 @@ class ShapeInfo:
         self.shape_type = _shape['shape_type']
         self.group_id = _shape['group_id']
         points = _shape['points']
-        self.left = points[0][0]
-        self.top = points[0][1]
-        self.right = points[1][0]
-        self.bottom = points[1][1]
+        if len(points) == 4:
+            self.left = points[0][0]
+            self.top = points[0][1]
+            self.right = points[2][0]
+            self.bottom = points[2][1]
+        else:
+            self.left = points[0][0]
+            self.top = points[0][1]
+            self.right = points[1][0]
+            self.bottom = points[1][1]
         self.image_id = image_id
         self.image_size = image_size
         self.points = points
@@ -139,12 +147,14 @@ def ensure_datasets_dir(dataset_root):
 # anylabeling:json => voc:xml
 if __name__ == '__main__':
     limit = None
+    # 是否覆盖已存在的图片和标注数据
+    overwrite_all = True
     # 初始化训练集时，指定为空数组，将自动统计并打印所有标签
     # specific_labels = []
-    specific_labels = label_config.to_list(label_config.manor)
-    labels_chz = label_config.to_list(label_config.manor_chz)
+    specific_labels = label_config.to_list(label_config.manor_ball)
+    labels_chz = label_config.to_list(label_config.manor_ball_chz)
     # 修改数据集名称
-    dataset_name = 'manor'
+    dataset_name = 'manor_ball'
     root_path = f'./data/{dataset_name}'
     target_path = f'./datasets/{dataset_name}'
     images_path = os.path.join(target_path, 'images')
@@ -202,10 +212,10 @@ if __name__ == '__main__':
         data_file_path = os.path.join(root_path, data_file)
         if data_file.endswith("txt"):
             image_file_path = data_file_path.replace("txt", "jpg")
-            if os.path.exists(os.path.join(labels_path, data_file)) is False:
+            if overwrite_all or os.path.exists(os.path.join(labels_path, data_file)) is False:
                 print(f"copy {data_file_path} to {labels_path}/{data_file}")
                 shutil.copyfile(data_file_path, os.path.join(labels_path, data_file))
-            if os.path.exists(os.path.join(images_path, data_file.replace('txt', 'jpg'))) is False:
+            if overwrite_all or os.path.exists(os.path.join(images_path, data_file.replace('txt', 'jpg'))) is False:
                 print(f"copy {image_file_path} to {images_path}/{data_file.replace('txt', 'jpg')}")
                 shutil.copyfile(image_file_path, os.path.join(images_path, data_file.replace('txt', 'jpg')))
             count += 1
@@ -221,7 +231,7 @@ if __name__ == '__main__':
     dataset_sql.check_json_labels_and_save(dataset, conn, overwrite=True)
     # 统计标签数据
     dataset_sql.summary_dataset_labels(dataset, labels, labels_chz, conn)
-    print("标签统计：")
+    print("标签统计：", len(labels))
     for label in labels:
         if label in label_counter:
             print(f"{label}: {label_counter[label]}")

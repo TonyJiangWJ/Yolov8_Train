@@ -4,9 +4,9 @@ import random
 import os
 
 # 数据集划分比例，训练集70%，验证集15%，测试集15%，按需修改
-train_percent = 0.70
-val_percent = 0.15
-test_percent = 0.15
+train_percent = 0.80
+val_percent = 0.1
+test_percent = 0.1
 
 
 def make_empty_dir(target_dir):
@@ -76,7 +76,7 @@ def main():
 
 if __name__ == '__main__':
     root_path = "./datasets"
-    source_train_type = 'manor'
+    source_train_type = 'manor_ball'
     target_train_type = source_train_type
     image_type = '.jpg'
     # 数据集路径
