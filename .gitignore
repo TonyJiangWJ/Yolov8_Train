@@ -1,5 +1,6 @@
 .idea/
 runs/
+train/results/
 *.pt
 data/
 datasets/

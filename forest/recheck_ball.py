@@ -8,7 +8,7 @@ import json
 
 def demo():
     # 读取图像
-    img = cv2.imread('K:/YOLOV8_train_clean/datasets/forest/test/images/16931781847396.jpg')
+    img = cv2.imread('E:/Repository/YOLOV8_train/datasets/forest/test/images/16931781847396.jpg')
 
     # 指定区域 [x, y, w, h]
     x = 169

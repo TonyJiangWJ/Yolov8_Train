@@ -11,6 +11,16 @@ ant_forest = {
     8: "stroll_btn",
     9: "sea_ball",
     10: "sea_garbage",
+    11: "backpack",
+    12: "gift",
+    13: "magic_species",
+    14: "one_key",
+    15: "patrol_ball",
+    16: "reward",
+    17: "sea_ocr",
+    18: "energy_ocr",
+    19: "close_icon",
+    20: "cooperation",
 }
 ant_forest_chz = {
     0: "cannot",
@@ -24,6 +34,16 @@ ant_forest_chz = {
     8: "stroll_btn",
     9: "sea_ball",
     10: "sea_garbage",
+    11: "backpack",
+    12: "gift",
+    13: "magic_species",
+    14: "one_key",
+    15: "patrol_ball",
+    16: "reward",
+    17: "sea_ocr",
+    18: "energy_ocr",
+    19: "close_icon",
+    20: "cooperation",
 }
 # 蚂蚁庄园
 manor = {
@@ -62,6 +82,7 @@ manor = {
     32: "working_chicken",
     33: "bring_back",
     34: "leave_msg",
+    35: 'speedup_eating',
 }
 
 manor_chz = {
@@ -100,6 +121,7 @@ manor_chz = {
     32: "工作鸡",
     33: "召回",
     34: "留言",
+    35: '加速吃饭中'
 }
 
 yuanshen = {
@@ -159,14 +181,14 @@ tiktok = {
 }
 # 星星球
 manor_ball = {
-    0: "chick",
-    1: "ball",
+    0: "ball",
+    1: "chick",
     2: "boom",
 }
 
 manor_ball_chz = {
-    0: "小鸡",
-    1: "球",
+    0: "球",
+    1: "小鸡",
     2: "炸弹",
 }
 

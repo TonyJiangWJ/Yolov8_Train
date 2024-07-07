@@ -134,9 +134,9 @@ if __name__ == '__main__':
     # 标签列表
     labels = label_config.yuanshen_chz
     # 项目地址，不配置的话会从首次运行的项目地址运行，导致非预期的结果
-    project_path = "K:/YOLOV8_train_clean/runs"
+    project_path = "E:/Repository/YOLOV8_train/runs"
     # 指定模型地址，进行模型初始化
-    best_model = YOLO(model='K:/YOLOV8_train_clean/train/runs/detect/train14/weights/best.pt')
+    best_model = YOLO(model='E:/Repository/YOLOV8_train/train/runs/detect/train14/weights/best.pt')
     # predict_video('F:/NVIDIA_RECORD/VIDEOS/Yuan Shen 原神/find_entry_fire.mp4',
     #               'F:/NVIDIA_RECORD/VIDEOS/Yuan Shen 原神/predicted_find_entry_fire.mp4')
     root_path = r'F:\NVIDIA_RECORD\VIDEOS\Yuan Shen 原神\20230922'

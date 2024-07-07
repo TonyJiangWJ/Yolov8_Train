@@ -18,7 +18,7 @@ def export_onnx_if_not_exists():
 # 创建anylabeling中使用的自定义模型，但是实际效果有点差 目前还是使用批量识别比较方便
 if __name__ == '__main__':
     labels = label_config.tiktok
-    project_path = "K:/YOLOV8_train_clean/"
+    project_path = "E:/Repository/YOLOV8_train/"
     model_path = f"{project_path}runs/detect/tiktok_v1.2/weights/best.pt"
     onnx_path = model_path.replace(".pt", ".onnx")
     yaml_path = model_path.replace(".pt", ".yaml")

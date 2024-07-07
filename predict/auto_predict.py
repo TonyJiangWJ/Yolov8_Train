@@ -13,6 +13,8 @@ COLOR_RED = '\033[0;31m'
 COLOR_GREEN = '\033[0;32m'
 COLOR_YELLOW = '\033[0;33m'
 COLOR_RESET = '\033[0m'
+
+
 # best_model = YOLO(model='config/best.pt')
 
 
@@ -26,7 +28,7 @@ def predict_and_save(img_path, predict_result_path):
     if image is None:
         print(f"{COLOR_RED}图片读取失败：{img_path}{COLOR_RESET}")
         return
-    tmp_file_path=os.path.join(project_path, 'tmp.jpg')
+    tmp_file_path = os.path.join(project_path, 'tmp.jpg')
     cv2.imwrite(tmp_file_path, image)
     # 指定project為當前執行目錄，否則會按settings文件中的地址進行保存
     result = best_model.predict(project=project_path, source=tmp_file_path, save=False)
@@ -54,6 +56,7 @@ def predict_and_save(img_path, predict_result_path):
                 [x, y],
                 [right, bottom]
             ]
+            shape['score'] = float(confidence)
             width, height = (right - x), (bottom - y)
             if confidence > confidence_threshold:
                 if area_threshold is not None and width * height < area_threshold:
@@ -89,18 +92,31 @@ def predict_and_save(img_path, predict_result_path):
 
 
 def predict_and_save_for_path(image_path, predict_result_path):
-    file_list = os.listdir(image_path)
     count = 0
-    for file in file_list:
-        if file.endswith("jpg"):
-            if not os.path.exists(image_path + '/' + file.replace('jpg', 'json')):
-                predict_and_save(os.path.join(image_path, file), predict_result_path)
-                count += 1
-                if max_predict_num is not None and count >= max_predict_num:
-                    break
+    for root, dirs, file_list in os.walk(image_path):
+        # print("dir:" + str(dirs))
+        if root.__contains__('predict'):
+            print("跳过predict文件夹")
+            continue
+        for file in file_list:
+            if file.endswith("jpg"):
+                if overwrite_predict_result is False:
+                    predict_json_path = os.path.join(predict_result_path, file.replace('jpg', 'json'))
+                    if os.path.exists(predict_json_path):
+                        print(f"predict result is exists skip it:{predict_json_path}")
+                        continue
+                operate_file = os.path.join(root, file)
+                if overwrite_label or not os.path.exists(operate_file.replace('jpg', 'json')):
+                    try:
+                        predict_and_save(operate_file, predict_result_path)
+                    except Exception as e:
+                        print("predict failed:" + operate_file)
+                        continue
+                    count += 1
+                    if max_predict_num is not None and count >= max_predict_num:
+                        break
     print(f"已完成{count}张图片的预测")
     return count
-
 
 
 def predict_images(image_path):
@@ -112,11 +128,16 @@ def predict_images(image_path):
     # 先清空预测结果，然后重新创建目录
     removed = True
     if os.path.exists(predict_result_path):
-        try:
-            shutil.rmtree(predict_result_path)
-        except:
+        if overwrite_predict_result is False:
             removed = False
-            print("删除predict文件夹异常，可能使用中")
+        else:
+            try:
+                print(f"正在删除predict文件夹，请稍候：{predict_result_path}")
+                shutil.rmtree(predict_result_path)
+                print("删除predict文件夹成功")
+            except:
+                removed = False
+                print("删除predict文件夹异常，可能使用中")
 
     if removed:
         os.mkdir(predict_result_path)
@@ -133,19 +154,26 @@ if __name__ == '__main__':
     area_threshold = None
     # 设置最大预测图片数, 不限制时设置为None
     max_predict_num = None
+    # 是否覆盖原标签数据 即当前图片的json文件存在时 是否重新预测
+    overwrite_label = True
+    # 是否覆盖预测结果
+    overwrite_predict_result = False
     # 标签列表
     labels = label_config.manor
     # 项目地址，不配置的话会从首次运行的项目地址运行，导致非预期的结果
-    project_path = "K:/YOLOV8_train_clean/runs"
+    project_path = os.path.join("../train/runs")
     # 指定模型地址，进行模型初始化
     # best_model = YOLO(model=r'K:\YOLOV8_train_clean\runs\detect\manor_v4\weights\best.pt')
-    best_model = YOLO(model=r'K:\YOLOV8_train_clean\train\runs\detect\train23\weights\best.pt')
+    # best_model = YOLO(model=os.path.join(r'..\train\runs\detect\train11\weights\best.pt'))
+    best_model = YOLO(model=os.path.join(r'..\train\results\manor\best.pt'))
     # 待识别的图片地址
     # root_path = r"K:\YOLOV8_train_clean\data\yuanshen_stone\predict"
     # root_path = r"H:\Projects\repository\Coding\video_saving"
-    root_path = r"H:\Projects\repository\datasets\manor_grouped"
-    for path in os.listdir(root_path):
-        total_predict += predict_images(os.path.join(root_path, path))
+    root_path = os.path.join(r"H:\Projects\repository\datasets\manor")
+    total_predict += predict_images(root_path)
+    # 如果是有子目录的，使用如下方式
+    # for path in os.listdir(root_path):
+    #     total_predict += predict_images(os.path.join(root_path, path))
     # for path in ["关闭按钮成功"]:
     #     predict_images(os.path.join(root_path, path))
     print(f"总计处理图片：{total_predict}")

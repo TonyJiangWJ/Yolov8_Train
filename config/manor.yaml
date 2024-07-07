@@ -8,7 +8,7 @@
 
 
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
-path: K:/YOLOV8_train_clean/datasets/manor
+path: E:/Repository/YOLOV8_train/datasets/manor
 train: # train images (relative to 'path')  16551 images
   - ./train
 val: # val images (relative to 'path')  4952 images
@@ -52,3 +52,7 @@ names:
   32: "working_chicken"
   33: "bring_back"
   34: "leave_msg"
+  35: "speedup_eating"
+  36: close_icon
+  37: collect
+  38: feed

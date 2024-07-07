@@ -26,7 +26,7 @@ def predict_and_save(img_path):
         print(f"{COLOR_RED}文件路径不存在：{img_path}{COLOR_RESET}")
         return
     # 指定project為當前執行目錄，否則會按settings文件中的地址進行保存
-    result = best_model.predict(project="K:/YOLOV8_train_clean/runs", source=img_path, save=True)
+    result = best_model.predict(project="E:/Repository/YOLOV8_train/runs", source=img_path, save=True)
 
     for depth1 in result:
         for depth2 in depth1:
@@ -49,8 +49,8 @@ def predict_and_save(img_path):
 
 
 if __name__ == '__main__':
-    best_model = YOLO(model='K:/YOLOV8_train_clean/runs/detect/manor_v4/weights/best.pt')
-    # predict_and_save("K:/YOLOV8_train_clean/datasets/manor/train/images/16927420177525.jpg")
+    best_model = YOLO(model='E:/Repository/YOLOV8_train/runs/detect/manor_v4/weights/best.pt')
+    # predict_and_save("E:/Repository/YOLOV8_train/datasets/manor/train/images/16927420177525.jpg")
     root_path = "H:/Projects/repository/datasets/manor"
     file_list = os.listdir(root_path)
     for file in file_list:

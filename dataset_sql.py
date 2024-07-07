@@ -222,7 +222,7 @@ def create_sqlite_connection(db_file='datasets/datasets.db'):
     return sqlite3.connect(db_file)
 
 
-def summary_dataset_labels(dataset, labels, labels_chz, conn):
+def summary_dataset_labels(dataset, labels, labels_chz, conn, group_counter):
     for label in labels:
         cls_id = labels.index(label)
         summary_sql = f"select count(*) from image_labels where dataset_id='{dataset.id}' AND label_name='{label}'"
@@ -232,7 +232,9 @@ def summary_dataset_labels(dataset, labels, labels_chz, conn):
         result = cur.fetchone()
         if result is None:
             LOGGER.error(f"标签未找到对应的数据：{label}")
+            group_counter[label] = 0
             continue
+        group_counter[label] = result[0]
         if cls_id < len(labels_chz):
             dataset_labels = DatasetLabels(dataset.id, label, cls_id, labels_chz[cls_id], result[0])
             dataset_labels.save(conn)
@@ -243,22 +245,48 @@ def summary_dataset_labels(dataset, labels, labels_chz, conn):
 ##
 # 读取数据集标签信息，并保存到数据库
 ##
-def check_json_labels_and_save(_dataset, _conn, relative_path='', overwrite=False):
+def remove_all_image_file_not_exists(_dataset, _conn, relative_path):
+    cursor = _conn.cursor()
+    query_sql = f"select image_id from dataset_images where dataset_id='{_dataset.id}'"
+    cursor.execute(query_sql)
+    result = cursor.fetchall()
+    if result is not None and len(result) > 0:
+        for row in result:
+            image_id = row[0]
+            if os.path.exists(os.path.join(relative_path, _dataset.data_dir_path, image_id, '.jpg')):
+                LOGGER.warn(f"image file not exists: {_dataset.data_dir_path}/{image_id}.jpg")
+                # del_sql = f"delete from dataset_images where image_id='{image_id}' and dataset_id='{_dataset.id}'"
+                # del_sql2 = f"delete from image_labels where image_id='{image_id}' and dataset_id='{_dataset.id}'"
+                # cursor.execute(del_sql)
+                # cursor.execute(del_sql2)
+                # _conn.commit()
+
+
+def check_json_labels_and_save(_dataset, _conn, relative_path='', overwrite=False, filter_image_ids=None):
+    if overwrite:
+        LOGGER.warn("delete all image labels")
+        del_image_labels = f"delete from image_labels where dataset_id='{_dataset.id}'"
+        cursor = _conn.cursor()
+        cursor.execute(del_image_labels)
+        _conn.commit()
     from convert_to_yolo_txt import load_label_file
     for json_file in os.listdir(os.path.join(relative_path, _dataset.data_dir_path)):
         if json_file.endswith('json'):
             image_id = json_file.replace('.json', '')
+            if filter_image_ids is not None and image_id not in filter_image_ids:
+                continue
             json_shapes, file_name = load_label_file(os.path.join(relative_path, _dataset.data_dir_path, json_file))
             dataset_image = DatasetImages(_dataset.id, image_id, file_name)
             dataset_image.save(_conn)
             first = True
             for jsonShape in json_shapes:
                 image_label = ImageLabels(_dataset.id, image_id, jsonShape.label, jsonShape.points)
-                if overwrite and first:
+                if overwrite is False and first:
                     first = False
                     image_label.delete_label_by_image_id(_conn)
                 image_label.save(_conn)
-
+    if overwrite is False:
+        remove_all_image_file_not_exists(_dataset, _conn, relative_path)
 
 if __name__ == '__main__':
 

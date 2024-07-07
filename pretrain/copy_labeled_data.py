@@ -1,7 +1,10 @@
 import os
 import shutil
 
+
 def copy_labeled_data(json_source_path, img_source_path, target_path, overwrite, _copy_count):
+    if not os.path.exists(json_source_path):
+        return _copy_count
     if not os.path.exists(target_path):
         os.mkdir(target_path)
 
@@ -9,6 +12,11 @@ def copy_labeled_data(json_source_path, img_source_path, target_path, overwrite,
     # 后续执行convert_xml2json和split构建训练集数据
     files = os.listdir(json_source_path)
     for file in files:
+        if os.path.isdir(json_source_path + '/' + file):
+            print(f"dir {json_source_path + '/' + file}")
+            _copy_count = copy_labeled_data(json_source_path + '/' + file, img_source_path + '/' + file, target_path,
+                                             overwrite, _copy_count)
+            continue
         if file.endswith('json'):
             json_path = os.path.join(json_source_path, file)
             target_json_path = os.path.join(target_path, file)
@@ -30,14 +38,23 @@ def copy_labeled_data(json_source_path, img_source_path, target_path, overwrite,
 
 if __name__ == '__main__':
     copy_count = 0
-    json_root_path = r'H:/Projects/repository/datasets/ant_forest/'
+    # json_root_path = r'../data/forest_low_2_merge/gift'
+    json_root_path = r'F:\datasets\manor\predict'
+    # json_root_path = r'H:\Projects\repository\datasets\ant_forest/'
+    # json_root_path = r'H:\Projects\repository\datasets\ant_forest\20240629\93860e8d414b61e9b0018f47aed97282\2024-06-28/'
+    # json_root_path = r'H:\Projects\repository\datasets\manor_games\ball/'
     img_root_path = json_root_path
-    # json_root_path = 'K:/YOLOV8_train_clean/data/'
-    # img_root_path = 'K:/YOLOV8_train_clean/data/'
-    # target_data_path = 'K:/YOLOV8_train_clean/data/yuanshen_temple'
-    target_data_path = 'K:/YOLOV8_train_clean/data/forest3'
-    for dir_name in ['merge202308-10']:
+    target_data_path = r'../data/manor'
+    # target_data_path = r'E:/Repository/YOLOV8_train/data/forest_20240625'
+    # 如果目录不存在，则创建目录，如果父级目录不存在则将父级目录一起创建
+    if not os.path.exists(target_data_path):
+        os.makedirs(target_data_path, exist_ok=True)
+
+    # for dir_name in ['friend_no_energy', 'home', 'one_key', 'sea_ball', 'sea_ball_friend']:
+    # for dir_name in ['backpack', 'collect', 'countdown', 'item', 'magic_species', 'reward', 'sea_garbage', 'sea_ocr', 'stroll_btn']:
+    # for dir_name in ['20240622','friend_no_energy', 'home','sea_ball']:
+    for dir_name in ['']:
         copy_count = copy_labeled_data(json_root_path + dir_name, img_root_path + dir_name, target_data_path,
-                                       overwrite=False,
+                                       overwrite=True,
                                        _copy_count=copy_count)
     print(f'复制了{copy_count}个标注数据')

@@ -3,6 +3,7 @@ from onnxruntime.quantization import (QuantType,
                                       quantize_static,)
 
 from ultralytics import YOLO
+import os
 
 
 ## 需要修改ultralytics代码
@@ -48,20 +49,22 @@ if __name__ == '__main__':
     # model_path = 'train/runs/detect/train15/weights/best.pt'
     # model_path = 'runs/detect/train7/weights/best.pt'
     # model_path = 'train/runs/detect/train12/weights/best.pt'
-    model_path = 'train/pretrain/manor_ball/best.pt'
+    model_path = os.path.abspath(r'../train/runs/detect/train27/weights/best.pt')
     # model_path = 'train/runs/detect/train6/weights/best.pt'
     # model_path = 'train/yolov8n.pt'
     # model_path = '/Users/jiangwenjie/Documents/Repositories/Github/Ant-Forest/config_data/forest_lite.onnx'
 
     model = YOLO(model_path)
     # model.export(format='ncnn', opset=13, simplify=True, imgsz=480)
-    success = model.export(task="detect", format="onnx", opset=12, imgsz=300, simplify=True)
-    onnx_path = model_path.replace('.pt', '.onnx')
-    model_quant_dynamic = onnx_path.replace('.onnx', '_lite.onnx')
-    quantize_dynamic(
-        model_input=onnx_path,  # 输入模型
-        model_output=model_quant_dynamic,  # 输出模型
-        weight_type=QuantType.QUInt8,  # 参数类型 Int8 / UInt8
-    )
+    success = model.export(task="detect", format="onnx", opset=12, imgsz=320, simplify=True)
+
+    # 量化模型无法正常转换成ncnn模型
+    # onnx_path = model_path.replace('.pt', '.onnx')
+    # model_quant_dynamic = onnx_path.replace('.onnx', '_lite.onnx')
+    # quantize_dynamic(
+    #     model_input=onnx_path,  # 输入模型
+    #     model_output=model_quant_dynamic,  # 输出模型
+    #     weight_type=QuantType.QUInt8,  # 参数类型 Int8 / UInt8
+    # )
     # 输出后前往网站进行转换
     # https://convertmodel.com/

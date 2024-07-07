@@ -3,10 +3,14 @@ import shutil
 import random
 import os
 
-# 数据集划分比例，训练集70%，验证集15%，测试集15%，按需修改
-train_percent = 0.80
-val_percent = 0.1
-test_percent = 0.1
+image_original_path = ''
+label_original_path = ''
+train_image_path = ''
+train_label_path = ''
+val_image_path = ''
+val_label_path = ''
+test_image_path = ''
+test_label_path = ''
 
 
 def make_empty_dir(target_dir):
@@ -29,7 +33,7 @@ def mkdir_and_clear():
     make_empty_dir(test_label_path)
 
 
-def main():
+def do_split_dataset(train_percent, val_percent, test_percent, image_type):
     mkdir_and_clear()
 
     total_txt = os.listdir(label_original_path)
@@ -74,11 +78,11 @@ def main():
     print("done")
 
 
-if __name__ == '__main__':
-    root_path = "./datasets"
-    source_train_type = 'manor_ball'
-    target_train_type = source_train_type
-    image_type = '.jpg'
+def split_dataset(train_percent, val_percent, test_percent, root_path, source_train_type, target_train_type=None,
+                  image_type='.jpg'):
+    global image_original_path, label_original_path, train_image_path, train_label_path, val_image_path, val_label_path, test_image_path, test_label_path
+    if target_train_type is None:
+        target_train_type = source_train_type
     # 数据集路径
     image_original_path = root_path + '/%s/images/' % source_train_type
     label_original_path = root_path + '/%s/labels/' % source_train_type
@@ -91,4 +95,14 @@ if __name__ == '__main__':
     # 测试集路径
     test_image_path = root_path + '/%s/test/images/' % target_train_type
     test_label_path = root_path + '/%s/test/labels/' % target_train_type
-    main()
+    do_split_dataset(train_percent, val_percent, test_percent, image_type)
+
+
+if __name__ == '__main__':
+    # 数据集划分比例，训练集70%，验证集15%，测试集15%，按需修改
+    train_percent = 0.7
+    val_percent = 0.15
+    test_percent = 0.15
+    root_path = "./datasets"
+    source_train_type = 'manor'
+    split_dataset(train_percent, val_percent, test_percent, root_path, source_train_type)

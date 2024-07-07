@@ -3,11 +3,11 @@ from pathlib import Path
 from ultralytics import YOLO
 from convert_to_yolo_txt import ShapeInfo
 
-best_model = YOLO(model='K:/YOLOV8_train_clean/runs/detect/manor_v1/weights/best.pt')
+best_model = YOLO(model='E:/Repository/YOLOV8_train/runs/detect/manor_v1/weights/best.pt')
 # best_model = YOLO(model='config/best.pt')
 
 # img_path = '1.jpg'
-img_path = 'K:/YOLOV8_train_clean/datasets/manor/images/169275806845675.jpg'
+img_path = 'E:/Repository/YOLOV8_train/datasets/manor/images/169275806845675.jpg'
 # img_path = 'datasets/rebar/images/000208.jpg'
 
 import os
@@ -21,7 +21,7 @@ COLOR_YELLOW = '\033[0;33m'
 COLOR_RESET = '\033[0m'
 image = cv2.imread(img_path)
 # 指定project為當前執行目錄，否則會按settings文件中的地址進行保存
-result = best_model.predict(project="K:/YOLOV8_train_clean/runs", source=img_path, save=True)
+result = best_model.predict(project="E:/Repository/YOLOV8_train/runs", source=img_path, save=True)
 
 # 在图像上绘制文本
 text = "Hello, OpenCV!"

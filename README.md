@@ -43,7 +43,7 @@
   ```yaml
   # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
   # 数据集所在位置，建议使用绝对路径
-  path: K:/YOLOV8_train_clean/datasets/forest
+  path: E:/Repository/YOLOV8_train/datasets/forest
   train: # train images (relative to 'path')  16551 images
     - ./train
   val: # val images (relative to 'path')  4952 images
@@ -117,7 +117,7 @@
 
 ```python
 from ultralytics import YOLO  
-best_model = YOLO(model='K:/YOLOV8_train_clean/runs/detect/train/weights/best.pt')
+best_model = YOLO(model='E:/Repository/YOLOV8_train/runs/detect/train/weights/best.pt')
 # 指定project為當前執行目錄，否則會按settings文件中的地址進行保存
 result = best_model.predict(project=project_path, source=img_path, save=False)
 # 后续针对result进行处理即可，具体参考auto_predict.py即可

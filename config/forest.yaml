@@ -8,7 +8,7 @@
 
 
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
-path: K:/YOLOV8_train_clean/datasets/forest
+path: E:/Repository/YOLOV8_train/datasets/forest
 train: # train images (relative to 'path')  16551 images
   - ./train
 val: # val images (relative to 'path')  4952 images
@@ -28,3 +28,11 @@ names:
   8: stroll_btn
   9: sea_ball
   10: sea_garbage
+  11: backpack
+  12: gift
+  13: magic_species
+  14: one_key
+  15: patrol_ball
+  16: reward
+  17: sea_ocr
+  18: energy_ocr

@@ -9,6 +9,7 @@ from lib.mylogger import LOGGER
 # 是否覆盖已存在的图片和标注数据
 overwrite_all = True
 
+
 def convertYolo(size, box):
     left, top, right, bottom = box
     width, height = size
@@ -75,7 +76,10 @@ class ShapeInfo:
     def __init__(self, _shape, image_id, image_size):
         self.label = _shape['label']
         self.shape_type = _shape['shape_type']
-        self.group_id = _shape['group_id']
+        if _shape.__contains__('group_id'):
+            self.group_id = _shape['group_id']
+        else:
+            self.group_id = None
         points = _shape['points']
         if len(points) == 4:
             self.left = points[0][0]
@@ -110,7 +114,7 @@ class ShapeInfo:
 
 def load_label_file(json_path, create_voc_xml=False):
     shapeInfos = []
-    with open(json_path, 'r') as f:
+    with open(json_path, 'r', encoding='utf-8') as f:
         jsonData = json.load(f)
         print(str(jsonData['shapes']))
         shapes = jsonData['shapes']
@@ -136,36 +140,20 @@ def load_label_file(json_path, create_voc_xml=False):
 def ensure_datasets_dir(dataset_root):
     if not os.path.exists(dataset_root):
         os.makedirs(dataset_root)
+    if overwrite_all:
+        shutil.rmtree(images_path, ignore_errors=True)
+        shutil.rmtree(labels_path, ignore_errors=True)
     if not os.path.exists(images_path):
         os.makedirs(images_path)
     if not os.path.exists(labels_path):
         os.makedirs(labels_path)
 
 
-# 处理原始数据data文件夹下到标签数据
-# anylabeling:json => yolo:txt
-# anylabeling:json => voc:xml
-if __name__ == '__main__':
-    limit = None
-    # 是否覆盖已存在的图片和标注数据
-    overwrite_all = True
-    # 初始化训练集时，指定为空数组，将自动统计并打印所有标签
-    # specific_labels = []
-    specific_labels = label_config.to_list(label_config.manor_ball)
-    labels_chz = label_config.to_list(label_config.manor_ball_chz)
-    # 修改数据集名称
-    dataset_name = 'manor_ball'
-    root_path = f'./data/{dataset_name}'
-    target_path = f'./datasets/{dataset_name}'
-    images_path = os.path.join(target_path, 'images')
-    labels_path = os.path.join(target_path, 'labels')
-    dataset = dataset_sql.Dataset(dataset_name, root_path)
-    conn = dataset_sql.create_sqlite_connection()
-    dataset.save(conn)
-    ensure_datasets_dir(target_path)
+def load_json_and_copy_data():
+    global labels
+    global label_counter
     json_files = os.listdir(root_path)
     all_shape_info = []
-    labels = set()
     for json_file in json_files:
         if json_file.endswith('json'):
             image_id = json_file.replace('.json', '')
@@ -191,12 +179,15 @@ if __name__ == '__main__':
             grouped_labels[image_id] = []
         grouped_labels[image_id].append(shapeInfo)
 
-    label_counter = {}
-    # 打印分组数据
+    # 打印分组数据 并将json转换为yolo txt格式
     for image_id, group_items in grouped_labels.items():
         print(f"image id: {image_id}")
         txt_file_name = image_id.replace('jpg', 'txt')
         txt_file = os.path.join(root_path, txt_file_name)
+        if overwrite_all is False:
+            if os.path.exists(txt_file):
+                LOGGER.verbose(f"skip exists txt file: {txt_file}")
+                continue
         with open(txt_file, 'w') as fw:
             for shapeInfo in group_items:
                 print(shapeInfo.to_yolo_txt(labels))
@@ -206,13 +197,20 @@ if __name__ == '__main__':
                 fw.write(shapeInfo.to_yolo_txt(labels) + '\n')
             fw.close()
 
+
+def copy_dataset_to_target_path():
+    global copied_image_ids
     data_files = os.listdir(root_path)
     count = 0
     for data_file in data_files:
         data_file_path = os.path.join(root_path, data_file)
         if data_file.endswith("txt"):
             image_file_path = data_file_path.replace("txt", "jpg")
+            if os.path.exists(image_file_path) is False:
+                os.remove(data_file_path)
+                continue
             if overwrite_all or os.path.exists(os.path.join(labels_path, data_file)) is False:
+                copied_image_ids.append(data_file.replace('.txt', ''))
                 print(f"copy {data_file_path} to {labels_path}/{data_file}")
                 shutil.copyfile(data_file_path, os.path.join(labels_path, data_file))
             if overwrite_all or os.path.exists(os.path.join(images_path, data_file.replace('txt', 'jpg'))) is False:
@@ -222,16 +220,63 @@ if __name__ == '__main__':
             if limit is not None and count >= limit:
                 break
 
+
+def summary_labels():
+    global copied_image_ids
+    dataset_sql.check_json_labels_and_save(dataset, conn, overwrite=overwrite_all, filter_image_ids=copied_image_ids)
+    # 统计标签数据
+    label_group_counter = {}
+    dataset_sql.summary_dataset_labels(dataset, labels, labels_chz, conn, label_group_counter)
     print(f"all labels: {labels}")
     print("for yml:")
     idx = 0
     for label in labels:
-        print(f'{idx}: "{label}"')
+        print(f'{idx}: {label}')
         idx += 1
-    dataset_sql.check_json_labels_and_save(dataset, conn, overwrite=True)
-    # 统计标签数据
-    dataset_sql.summary_dataset_labels(dataset, labels, labels_chz, conn)
-    print("标签统计：", len(labels))
+    print("当前数据集的标签统计：", len(labels))
     for label in labels:
-        if label in label_counter:
-            print(f"{label}: {label_counter[label]}")
+        if label in label_group_counter:
+            print(f"{label}: {label_group_counter[label]}")
+
+
+# 处理原始数据data文件夹下到标签数据
+# anylabeling:json => yolo:txt
+# anylabeling:json => voc:xml
+if __name__ == '__main__':
+    # 是否指定最大处理数量
+    limit = None
+    # 是否覆盖已存在的图片和标注数据
+    overwrite_all = True
+    # 初始化训练集时，指定为空数组，将自动统计并打印所有标签
+    # specific_labels = []
+    # labels_chz = []
+    specific_labels = label_config.to_list(label_config.manor)
+    labels_chz = label_config.to_list(label_config.manor_chz)
+    # 修改数据集名称
+    dataset_name = 'manor'
+    root_path = f'./data/{dataset_name}'
+    target_path = f'./datasets/{dataset_name}'
+    images_path = os.path.join(target_path, 'images')
+    labels_path = os.path.join(target_path, 'labels')
+    dataset = dataset_sql.Dataset(dataset_name, root_path)
+    conn = dataset_sql.create_sqlite_connection()
+    dataset.save(conn)
+    ensure_datasets_dir(target_path)
+
+    labels = set()
+    label_counter = {}
+    copied_image_ids = []
+
+    load_json_and_copy_data()
+    copy_dataset_to_target_path()
+
+    summary_labels()
+
+##
+#
+# close_icon: 10
+# cooraption: 31
+# gift: 0
+# patrol_ball: 2
+# sea_ocr: 10
+##
