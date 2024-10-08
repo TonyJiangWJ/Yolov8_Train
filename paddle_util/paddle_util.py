@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from paddleocr import PaddleOCR
 import os
 
@@ -15,8 +16,11 @@ ocr = PaddleOCR(det_model_dir=det_model_dir, rec_model_dir=rec_model_dir, cls_mo
 def recognize_text(img_path, region):
     # 定义截图区域（例如，左上角坐标为(x1, y1)，右下角坐标为(x2, y2)）
     x1, y1, x2, y2 = map(int, region)
-    image = cv2.imread(img_path)
+    image = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
+    # cv2.imread无法处理webdav路径和中文路径
+    # image = cv2.imread(img_path)
     if image is None:
+        print(f"图片读取失败：{img_path}")
         return ""
     # 截图区域
     cropped_image = image[y1:y2, x1:x2]

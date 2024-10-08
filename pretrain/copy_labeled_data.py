@@ -1,9 +1,11 @@
 import os
 import shutil
+from lib.mylogger import LOGGER
 
 
 def copy_labeled_data(json_source_path, img_source_path, target_path, overwrite, _copy_count):
     if not os.path.exists(json_source_path):
+        LOGGER.warn(f"{json_source_path} not exists")
         return _copy_count
     if not os.path.exists(target_path):
         os.mkdir(target_path)
@@ -38,13 +40,17 @@ def copy_labeled_data(json_source_path, img_source_path, target_path, overwrite,
 
 if __name__ == '__main__':
     copy_count = 0
-    # json_root_path = r'../data/forest_low_2_merge/gift'
-    json_root_path = r'F:\datasets\manor\predict'
+    json_root_path = r'../data/forest_low_2_merge'
+    # json_root_path = r'F:\datasets\manor\predict'
+    # json_root_path = r'Z:\disk2\脚本同步\forest\待标注数据\20240714\predict'
+
+    # json_root_path = r'Z:\disk2\脚本同步\forest\待标注数据\20240716/'
     # json_root_path = r'H:\Projects\repository\datasets\ant_forest/'
     # json_root_path = r'H:\Projects\repository\datasets\ant_forest\20240629\93860e8d414b61e9b0018f47aed97282\2024-06-28/'
     # json_root_path = r'H:\Projects\repository\datasets\manor_games\ball/'
+    # json_root_path = r'../data/forest/recheck'
     img_root_path = json_root_path
-    target_data_path = r'../data/manor'
+    target_data_path = r'../data/forest_20240717'
     # target_data_path = r'E:/Repository/YOLOV8_train/data/forest_20240625'
     # 如果目录不存在，则创建目录，如果父级目录不存在则将父级目录一起创建
     if not os.path.exists(target_data_path):
@@ -52,7 +58,7 @@ if __name__ == '__main__':
 
     # for dir_name in ['friend_no_energy', 'home', 'one_key', 'sea_ball', 'sea_ball_friend']:
     # for dir_name in ['backpack', 'collect', 'countdown', 'item', 'magic_species', 'reward', 'sea_garbage', 'sea_ocr', 'stroll_btn']:
-    # for dir_name in ['20240622','friend_no_energy', 'home','sea_ball']:
+    # for dir_name in ['sea_ocr', 'sea_garbage', 'cooperation', 'gift']:
     for dir_name in ['']:
         copy_count = copy_labeled_data(json_root_path + dir_name, img_root_path + dir_name, target_data_path,
                                        overwrite=True,

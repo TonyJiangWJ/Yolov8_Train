@@ -1,32 +1,19 @@
 from ultralytics import YOLO
 import os
-import ctypes
+
 from split import split_dataset
 from posttrain.export_x_anylabeling_model import export_x_anylabeling_model_file
 import label_config
 
-# 定义电源设置的常量
-ES_CONTINUOUS = 0x80000000
-ES_SYSTEM_REQUIRED = 0x00000001
 
-
-def redo_split_dataset(source_train_type):
+def redo_split_dataset():
     # 数据集划分比例，训练集70%，验证集15%，测试集15%，按需修改
     train_percent = 0.7
     val_percent = 0.15
     test_percent = 0.15
     root_path = "../datasets"
+    source_train_type = 'ad'
     split_dataset(train_percent, val_percent, test_percent, root_path, source_train_type)
-
-
-def prevent_sleep():
-    """防止系统进入休眠状态"""
-    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
-
-
-def allow_sleep():
-    """允许系统进入休眠状态"""
-    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
 
 
 ##
@@ -38,19 +25,19 @@ if __name__ == '__main__':
     # model = YOLO('yolov8n.pt')
     # model = YOLO('yolov8n.pt')
     loop_size = 5
-    start_model = 30
-    prevent_sleep()
+    start_model = 22
+
     while loop_size > 0:
-        redo_split_dataset(source_train_type='forest_20240717')
+        redo_split_dataset()
         pre_train_model = os.path.abspath(rf'./runs/detect/train{start_model}/weights/best.pt')
         model = YOLO(pre_train_model)
         # Train the model
-        results = model.train(data=os.path.abspath(r'../config/forest_rolling.yaml'), epochs=200, imgsz=320, device=0,
+        results = model.train(data=os.path.abspath(r'../config/ad.yaml'), epochs=200, imgsz=480, device=0,
                               workers=32, batch=32,
                               patience=100)
         start_model += 1
         loop_size -= 1
-    allow_sleep()
+
     model_path = os.path.abspath(rf'./runs/detect/train{start_model}/weights/best.onnx')
-    export_x_anylabeling_model_file(model_path, label_config.ant_forest, 'ant-forest', f'蚂蚁森林-20240919')
+    export_x_anylabeling_model_file(model_path, label_config.ad, 'ad', f'广告-{start_model}')
     print('done')

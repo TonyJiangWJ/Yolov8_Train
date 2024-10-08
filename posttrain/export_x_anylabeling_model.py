@@ -42,6 +42,10 @@ def export_x_anylabeling_model_file(model_path, classes, name, display_name, nms
 
 
 if __name__ == '__main__':
-    export_x_anylabeling_model_file('../train/results/manor/best.onnx', label_config.manor,
-                                    'manor',
-                                    display_name='蚂蚁庄园v1')
+    # export_x_anylabeling_model_file('../train/results/manor/best.onnx', label_config.manor,
+    #                                 'manor',
+    #                                 display_name='蚂蚁庄园v1')
+
+    export_x_anylabeling_model_file('../train/results/forest_tmp/best.onnx', label_config.ant_forest,
+                                    'ant-forest',
+                                    display_name='蚂蚁森林20240715-tmp')

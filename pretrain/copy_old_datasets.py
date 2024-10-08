@@ -30,7 +30,7 @@ def copy_all_random(dataset_name, new_data_path, old_amount=200):
                     LOGGER.warn(f"图片数据不再存在，需要考虑删除：{image_id} label: {label}")
                     continue
                 LOGGER.verbose(f"复制labels数据：{os.path.join('..', dataset.data_dir_path, image_id + '.json')}")
-                shutil.copyfile(os.path.join('..', dataset.data_dir_path, image_id + '.json'), os.path.join(new_data_path, image_id+'.json'))
+                shutil.copyfile(os.path.join('..', dataset.data_dir_path, image_id + '.json'), os.path.join(new_data_path ,image_id+'.json'))
                 LOGGER.verbose(f"复制图片数据：{os.path.join('..', dataset.data_dir_path, image_id + '.jpg')}")
                 shutil.copyfile(os.path.join('..', dataset.data_dir_path, image_id + '.jpg'), os.path.join(new_data_path, image_id+'.jpg'))
 
@@ -39,5 +39,5 @@ def copy_all_random(dataset_name, new_data_path, old_amount=200):
 
 ## 从旧的数据集中抽取一部分旧的标签数据加入到新的标签训练，避免模型遗忘
 if __name__ == '__main__':
-    copy_all_random('forest_new', '../data/forest_20240625', old_amount=100)
+    copy_all_random('forest', '../data/forest_20240717/old_data', old_amount=100)
 

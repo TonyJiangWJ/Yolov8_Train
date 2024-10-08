@@ -6,9 +6,6 @@ import label_config
 import dataset_sql
 from lib.mylogger import LOGGER
 
-# 是否覆盖已存在的图片和标注数据
-overwrite_all = True
-
 
 def convertYolo(size, box):
     left, top, right, bottom = box
@@ -137,7 +134,7 @@ def load_label_file(json_path, create_voc_xml=False):
     return shapeInfos, imagePath
 
 
-def ensure_datasets_dir(dataset_root):
+def ensure_datasets_dir(dataset_root, overwrite_all, images_path, labels_path):
     if not os.path.exists(dataset_root):
         os.makedirs(dataset_root)
     if overwrite_all:
@@ -149,12 +146,14 @@ def ensure_datasets_dir(dataset_root):
         os.makedirs(labels_path)
 
 
-def load_json_and_copy_data():
-    global labels
-    global label_counter
+def load_json_and_copy_data(root_path, dataset, conn, specific_labels, overwrite_all, label_counter):
     json_files = os.listdir(root_path)
+    labels = set()
     all_shape_info = []
+    total = len(json_files)
+    current = 0
     for json_file in json_files:
+        current += 1
         if json_file.endswith('json'):
             image_id = json_file.replace('.json', '')
             json_shapes, image_path = load_label_file(os.path.join(root_path, json_file))
@@ -164,9 +163,11 @@ def load_json_and_copy_data():
                 print(jsonShape)
                 labels.add(jsonShape.label)
                 all_shape_info.append(jsonShape)
+        if current % 10 == 0:
+            print(f"{current / total * 100:.2f}%")
     labels = sorted(list(labels))
     print(f"data labels: {labels}")
-    if len(specific_labels) > 0:
+    if len(specific_labels) > 0 and len(labels):
         not_exists_labels = sorted(list(set(labels) - set(specific_labels)))
         print(f'not exists labels: {not_exists_labels}')
         labels = specific_labels + not_exists_labels
@@ -196,10 +197,10 @@ def load_json_and_copy_data():
                 label_counter[shapeInfo.label] += 1
                 fw.write(shapeInfo.to_yolo_txt(labels) + '\n')
             fw.close()
+    return list(labels)
 
 
-def copy_dataset_to_target_path():
-    global copied_image_ids
+def copy_dataset_to_target_path(root_path, images_path, labels_path, overwrite_all, copied_image_ids, limit):
     data_files = os.listdir(root_path)
     count = 0
     for data_file in data_files:
@@ -221,8 +222,7 @@ def copy_dataset_to_target_path():
                 break
 
 
-def summary_labels():
-    global copied_image_ids
+def summary_labels(dataset, conn, overwrite_all, labels, labels_chz, copied_image_ids):
     dataset_sql.check_json_labels_and_save(dataset, conn, overwrite=overwrite_all, filter_image_ids=copied_image_ids)
     # 统计标签数据
     label_group_counter = {}
@@ -239,44 +239,47 @@ def summary_labels():
             print(f"{label}: {label_group_counter[label]}")
 
 
-# 处理原始数据data文件夹下到标签数据
-# anylabeling:json => yolo:txt
-# anylabeling:json => voc:xml
-if __name__ == '__main__':
+def convert_to_yolo_txt(specific_labels, labels_chz, dataset_name, root_path=None, target_path=None, max_predict=None,
+                        overwrite=True):
     # 是否指定最大处理数量
-    limit = None
+    limit = max_predict
     # 是否覆盖已存在的图片和标注数据
-    overwrite_all = True
-    # 初始化训练集时，指定为空数组，将自动统计并打印所有标签
-    # specific_labels = []
-    # labels_chz = []
-    specific_labels = label_config.to_list(label_config.manor)
-    labels_chz = label_config.to_list(label_config.manor_chz)
-    # 修改数据集名称
-    dataset_name = 'manor'
-    root_path = f'./data/{dataset_name}'
-    target_path = f'./datasets/{dataset_name}'
+    overwrite_all = overwrite
+    if root_path is None:
+        root_path = f'./data/{dataset_name}'
+    if target_path is None:
+        target_path = f'./datasets/{dataset_name}'
     images_path = os.path.join(target_path, 'images')
     labels_path = os.path.join(target_path, 'labels')
     dataset = dataset_sql.Dataset(dataset_name, root_path)
     conn = dataset_sql.create_sqlite_connection()
     dataset.save(conn)
-    ensure_datasets_dir(target_path)
+    ensure_datasets_dir(target_path, overwrite_all, images_path, labels_path)
 
-    labels = set()
-    label_counter = {}
+    labels = []
     copied_image_ids = []
+    label_counter = {}
 
-    load_json_and_copy_data()
-    copy_dataset_to_target_path()
+    specific_labels = load_json_and_copy_data(root_path, dataset, conn, specific_labels, overwrite_all, label_counter)
+    copy_dataset_to_target_path(root_path, images_path, labels_path, overwrite_all, copied_image_ids, limit)
 
-    summary_labels()
+    summary_labels(dataset, conn, overwrite_all, specific_labels, labels_chz, copied_image_ids)
 
-##
-#
-# close_icon: 10
-# cooraption: 31
-# gift: 0
-# patrol_ball: 2
-# sea_ocr: 10
-##
+
+# 处理原始数据data文件夹下到标签数据
+# anylabeling:json => yolo:txt
+# anylabeling:json => voc:xml
+if __name__ == '__main__':
+    # 是否指定最大处理数量
+    max_predict = None
+    # 是否覆盖已存在的图片和标注数据
+    overwrite = False
+    # 初始化训练集时，指定为空数组，将自动统计并打印所有标签
+    # specific_labels = []
+    # labels_chz = []
+    specific_labels = label_config.to_list(label_config.ant_forest)
+    labels_chz = label_config.to_list(label_config.ant_forest_chz)
+    # 指定
+    dataset_name = 'forest_20240717'
+    convert_to_yolo_txt(specific_labels, labels_chz, dataset_name,
+                        max_predict=max_predict, overwrite=overwrite)

@@ -104,5 +104,5 @@ if __name__ == '__main__':
     val_percent = 0.15
     test_percent = 0.15
     root_path = "./datasets"
-    source_train_type = 'manor'
+    source_train_type = 'forest_recheck_20240714'
     split_dataset(train_percent, val_percent, test_percent, root_path, source_train_type)

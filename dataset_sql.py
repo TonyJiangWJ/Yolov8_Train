@@ -192,6 +192,7 @@ class ImageLabels:
         cursor.execute(del_sql)
         cnx.commit()
 
+
 ###
 # create table original_image(
 #     id integer primary key autoincrement ,
@@ -270,7 +271,11 @@ def check_json_labels_and_save(_dataset, _conn, relative_path='', overwrite=Fals
         cursor.execute(del_image_labels)
         _conn.commit()
     from convert_to_yolo_txt import load_label_file
-    for json_file in os.listdir(os.path.join(relative_path, _dataset.data_dir_path)):
+    all_files = os.listdir(os.path.join(relative_path, _dataset.data_dir_path))
+    total = len(all_files)
+    current = 0
+    for json_file in all_files:
+        current += 1
         if json_file.endswith('json'):
             image_id = json_file.replace('.json', '')
             if filter_image_ids is not None and image_id not in filter_image_ids:
@@ -285,11 +290,12 @@ def check_json_labels_and_save(_dataset, _conn, relative_path='', overwrite=Fals
                     first = False
                     image_label.delete_label_by_image_id(_conn)
                 image_label.save(_conn)
+        LOGGER.verbose(f"save image labels: {current / total * 100:.2f}%")
     if overwrite is False:
         remove_all_image_file_not_exists(_dataset, _conn, relative_path)
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     conn = sqlite3.connect('datasets/datasets.db')
     root_path = 'data/manor'
     dataset = Dataset('manor', root_path)
@@ -297,4 +303,4 @@ if __name__ == '__main__':
     labels = label_config.to_list(label_config.manor)
     labels_chz = label_config.to_list(label_config.manor_chz)
     check_json_labels_and_save(dataset, conn)
-    summary_dataset_labels(dataset, labels, labels_chz, conn)
+    summary_dataset_labels(dataset, labels, labels_chz, conn, {})

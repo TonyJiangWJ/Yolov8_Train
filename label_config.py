@@ -192,6 +192,16 @@ manor_ball_chz = {
     2: "炸弹",
 }
 
+ad = {
+    0: 'close_dialog',
+    1: 'close_icon',
+    2: 'confirm',
+    3: 'countdown',
+    4: 'scroll_countdown',
+    5: 'scroll_done',
+    6: 'target',
+}
+
 # 遍历得到values，需要python3.8以上，否则顺序无法保证
 def to_list(label_obj: dict):
     array_list = []

@@ -6,3 +6,4 @@ data/
 datasets/
 __pycache__/
 
+*.log
